@@ -5,8 +5,8 @@
 #include <string.h>
 
 #define F_CPU 8000000 
-#define BUAD 9600 
-#define BUAD_RATE_CALC ((F_CPU/16/BUAD) - 1)  
+#define BAUD 9600 
+#define BAUD_RATE_CALC ((F_CPU/16/BAUD) - 1)  
 
 void sendserial(char *);
 #endif

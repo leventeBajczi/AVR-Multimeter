@@ -15,7 +15,7 @@
 
 #define LN_1_3 -0.85235130009 //empirical!!
 #define CAPACITANCE 0.0000047
-#define TIME_CORRECTION 1.00806451613
+#define TIME_CORRECTION 1.00806451613 //from 31.25/31, given we can't count from 0 to 30.25
 
 void start_timer();
 

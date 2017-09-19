@@ -3,8 +3,8 @@
 void sendserial(char* ar) {
     
     //High and low bits
-    UBRR0H = (BUAD_RATE_CALC >> 8); 
-    UBRR0L = BUAD_RATE_CALC; 
+    UBRR0H = (BAUD_RATE_CALC >> 8); 
+    UBRR0L = BAUD_RATE_CALC; 
     //////////////// 
     //transimit and recieve enable
     UCSR0B = (1 << TXEN0)| (1 << TXCIE0) | (1 << RXEN0) | (1 << RXCIE0); 
