@@ -6,3 +6,7 @@ Requirements:
 * avr-gcc
 
 The Makefile assumes you are using an Atmega328P and would like to upload via an usbtiny AVR programmer through USB.
+
+The circuit:
+
+<img src="./assets/resistance_measure_bb.svg">
