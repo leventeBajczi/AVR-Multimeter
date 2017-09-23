@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "serialcomm.h"
 #include <avr/interrupt.h>
+#include <math.h>
 #include <util/delay.h>
 
 
@@ -10,45 +11,49 @@
 #define CM 0b00000100
 #define EC 0b00000001
 
-//D register
-#define TEST_LED 0b10000000
+#define CAPACITANCE 0.000001
 
-#define LN_1_3 -0.85235130009 //empirical!!
-#define CAPACITANCE 0.0000047
-#define TIME_CORRECTION 1.00806451613 //from 31.25/31, given we can't count from 0 to 30.25
-
-void start_timer();
+void start_adc();
 
 void charge_capacitor();
-void discharge_capacitor(int*);
-void determine_resistance(int*, float*);
-void display_resistance(float);
+void discharge_capacitor(int*, int*);
+void determine_resistance(int*, int*);
+void display_resistance(double);
 
-int elapsed_ms = 0;
-
+int ADCvalue = 0;
 
 int main(void)
 {
-    start_timer();
+    start_adc();
     
     while(1) 
     {
-        int time = elapsed_ms;
-        float resistance = 0.0;
+        int resistance = 0;
+        int time = 0;
         charge_capacitor();
-        discharge_capacitor(&time);
+        discharge_capacitor(&time, &resistance);
         determine_resistance(&time, &resistance);
         display_resistance(resistance);
     }
     
 }
 
-void start_timer(){
-    TCCR0A |= (1 << WGM01);     //activate time interrupts every 1ms (0x1E * 8000000Hz) !!! need factor of 1.00806451613 to make up for rounding
-    OCR0A = 0x1E;
-    TIMSK0 |= (1 << OCIE0A);
-    sei();
-    TCCR0B |= (1 << CS02);
+void start_adc(){
+    ADMUX = 0;                
+    ADMUX |= (1 << REFS0);    
+    ADMUX |= (1 << ADLAR);    
+
+    ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); 
+    ADCSRA |= (1 << ADATE);  
+    
+    ADCSRB = 0;               
+
+    ADCSRA |= (1 << ADEN);    
+    ADCSRA |= (1 << ADIE);    
+
+    ADCSRA |= (1 << ADSC);    
+
+    sei(); 
 }
 
 
@@ -58,38 +63,49 @@ void charge_capacitor(){
     _delay_ms(2000);
 }
 
-void discharge_capacitor(int * time){
+void discharge_capacitor(int * time, int * voltages){
     DDRB = EC + CM;
-    *time = elapsed_ms;
     PORTB = 0x00;
-    while(PINB != 0x00){
-        //wait
-    }
-    *time = elapsed_ms - *time;
+    unsigned int a[2], i = 0;
+    _delay_ms(100);
+    a[1] = 1001;
+    a[0] = ADCvalue;
+    while(a[1]>1000){
+        a[1] = ADCvalue;
+        i++;
+        _delay_ms(1);
 
+    }
+    unsigned long long voltages2 =((double)i) / (-1000 * CAPACITANCE * (log(a[1]) - log(a[0])));
+    _delay_ms(10);
+    char* out = "         ";
+    sprintf(out, "%7lu\n", (voltages2));
+    sendserial(out);
+    *time = i;
+    
     
 }
-void determine_resistance(int* time, float * resistance){
+void determine_resistance(int* time, int * resistance){
     /*
     V = 3V * e^(-t/RC)
     ln(1/3) = -t / RC
     ln(1/3)*R = -t / C
     R = -t/(C*ln(1/3))
-    */
+   */
 
-    *resistance = ((float)*time) * TIME_CORRECTION / (-100000.0 * CAPACITANCE * LN_1_3);
-    char *str = "";
-    sprintf(str, "%d\t%d\n\0", *time, (int)*resistance);
-    sendserial(str);
+   // *resistance = ((double)*time/1000) / (-100.0 * CAPACITANCE * *resistance);
+
+ 
 
 
 }
-void display_resistance(float resistance){
+void display_resistance(double resistance){
 
 }
 
-
-ISR (TIMER0_COMPA_vect)  
+ISR(ADC_vect)
 {
-    elapsed_ms+=1;
+
+    ADCvalue = ADC;
+
 }
