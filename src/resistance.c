@@ -1,77 +1,62 @@
 #include "resistance.h"
 
-void start_adc();
-void charge_capacitor();
-void discharge_capacitor(int*, int*);
-void determine_resistance(int*, int*);
-void display_resistance(double);
-
 int ADCvalue = 0;
 
 int main(void)
 {
     start_adc();
-    
-    while(1) 
+    unsigned long * resistance = (unsigned long*) malloc(sizeof(unsigned long));;
+    unsigned int * time = (unsigned int*) malloc(sizeof(unsigned int));
+    unsigned int * a = (unsigned int*) malloc(sizeof(unsigned int)*2);
+    for(;;)
     {
-        int resistance = 0;
-        int time = 0;
         charge_capacitor();
-        discharge_capacitor(&time, &resistance);
-        determine_resistance(&time, &resistance);
+        discharge_capacitor(time, &a);
+        determine_resistance(time, &a, resistance);
         display_resistance(resistance);
     }
+    free(resistance);
+    free(time);
+    free(a);
     
 }
 
 void start_adc(){
-    ADMUX = 0;                
+    ADMUX = 0;                //use ADC0
     ADMUX |= (1 << REFS0);    
     ADMUX |= (1 << ADLAR);    
-
     ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); 
     ADCSRA |= (1 << ADATE);  
-    
-    ADCSRB = 0;               
-
+    ADCSRB = 0;              
     ADCSRA |= (1 << ADEN);    
     ADCSRA |= (1 << ADIE);    
-
     ADCSRA |= (1 << ADSC);    
-
     sei(); 
 }
 
 
-void charge_capacitor(){
+void charge_capacitor(){        //charges up the capacitor
     DDRB = CP+CM;
     PORTB = CP;
-    _delay_ms(2000);
+    _delay_ms(CHARGE_DELAY);
 }
 
-void discharge_capacitor(int * time, int * voltages){
+void discharge_capacitor(int * time, unsigned int ** a){   //discharges the capacitor and measures the discharge rate
     DDRB = EC + CM;
     PORTB = 0x00;
-    unsigned int a[2], i = 0;
+    unsigned int i = 0;
     _delay_ms(100);
-    a[1] = 1001;
-    a[0] = ADCvalue;
-    while(a[1]>1000){
-        a[1] = ADCvalue;
+    *a[0] = *a[1] = ADCvalue;
+    while(*a[1]>1000){
+        *a[1] = ADCvalue;
         i++;
         _delay_ms(1);
 
     }
-    unsigned long long voltages2 =((double)i) / (-1000 * CAPACITANCE * (log(a[1]) - log(a[0])));
-    _delay_ms(10);
-    char* out = "         ";
-    sprintf(out, "%7lu\n", (voltages2));
-    sendserial(out);
     *time = i;
-    
-    
+
 }
-void determine_resistance(int* time, int * resistance){
+void determine_resistance(int * time, unsigned int ** a, unsigned long * resistance){ //calculates the resistance
     /*
     V = 3V * e^(-t/RC)
     ln(1/3) = -t / RC
@@ -79,17 +64,17 @@ void determine_resistance(int* time, int * resistance){
     R = -t/(C*ln(1/3))
    */
 
-   // *resistance = ((double)*time/1000) / (-100.0 * CAPACITANCE * *resistance);
-
- 
-
+    *resistance =((double)*time) / (-1000 * CAPACITANCE * (log(*a[1]) - log(*a[0])));
 
 }
-void display_resistance(double resistance){
-
+void display_resistance(unsigned long * resistance){    //displays the resistance, so far only on serial
+    _delay_ms(10);
+    char* out = "         ";
+    sprintf(out, "%7lu\n", *resistance);
+    sendserial(out);
 }
 
-ISR(ADC_vect)
+ISR(ADC_vect)   //ADC interrupts
 {
 
     ADCvalue = ADC;
