@@ -50,10 +50,10 @@ void discharge_capacitor(int * time, unsigned int ** a){   //discharges the capa
     while(*a[1]>1000){
         *a[1] = ADCvalue;
         i++;
-        _delay_ms(1);
+        _delay_ms(10);
 
     }
-    *time = i;
+    *time = i*10;
 
 }
 void determine_resistance(int * time, unsigned int ** a, unsigned long * resistance){ //calculates the resistance
