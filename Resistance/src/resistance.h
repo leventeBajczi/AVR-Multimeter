@@ -17,6 +17,7 @@
 
 #define CAPACITANCE 2.2E-7
 #define CHARGE_DELAY 2000
+#define TIME_CORRECTION 1.0249437 //measured with simulator
 
 
 void start_adc();
