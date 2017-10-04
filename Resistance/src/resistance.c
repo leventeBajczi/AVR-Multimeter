@@ -64,7 +64,7 @@ void determine_resistance(int * time, unsigned int ** a, unsigned long * resista
     R = -t/(C*ln(1/3))
    */
 
-    *resistance =((double)*time) / (-1000 * CAPACITANCE * (log(*a[1]) - log(*a[0])));
+    *resistance =((double)(*time) * TIME_CORRECTION) / (-1000 * CAPACITANCE * (log(*a[1]) - log(*a[0])));
 
 }
 void display_resistance(unsigned long * resistance){    //displays the resistance, so far only on serial
