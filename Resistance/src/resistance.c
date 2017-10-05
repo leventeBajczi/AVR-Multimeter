@@ -36,14 +36,18 @@ void start_adc(){
 
 
 void charge_capacitor(){        //charges up the capacitor
-    DDRB = CP+CM;
+    DDRB = CP;
+    DDRD = CM;
+    PORTD = 0x00;
     PORTB = CP;
     _delay_ms(CHARGE_DELAY);
 }
 
 void discharge_capacitor(int * time, unsigned int ** a){   //discharges the capacitor and measures the discharge rate
-    DDRB = EC + CM;
+    DDRB = 0x00;
+    DDRD = EC + CM;
     PORTB = 0x00;
+    PORTD = 0x00;
     unsigned int i = 0;
     _delay_ms(100);
     (*a)[0] = (*a)[1] = ADCvalue;

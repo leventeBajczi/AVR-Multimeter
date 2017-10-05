@@ -12,11 +12,13 @@
 
 //B register
 #define CP 0b00000010
-#define CM 0b00000100
-#define EC 0b00000001
 
-#define CAPACITANCE 7.355E-8
-#define CHARGE_DELAY 450
+//D register
+#define CM 0b00100000
+#define EC 0b00000100
+
+#define CAPACITANCE 1e-7
+#define CHARGE_DELAY 2000
 #define TIME_CORRECTION 1.0249437 //measured with simulator
 
 
