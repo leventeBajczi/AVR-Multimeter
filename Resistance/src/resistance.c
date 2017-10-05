@@ -46,14 +46,14 @@ void discharge_capacitor(int * time, unsigned int ** a){   //discharges the capa
     PORTB = 0x00;
     unsigned int i = 0;
     _delay_ms(100);
-    *a[0] = *a[1] = ADCvalue;
-    while(*a[1]>1000){
-        *a[1] = ADCvalue;
+    (*a)[0] = (*a)[1] = ADCvalue;
+    while((*a)[1]>1000){
+        _delay_ms(1);
+        (*a)[1] = ADCvalue;
         i++;
-        _delay_ms(10);
 
     }
-    *time = i*10;
+    *time = i;
 
 }
 void determine_resistance(int * time, unsigned int ** a, unsigned long * resistance){ //calculates the resistance
@@ -64,14 +64,16 @@ void determine_resistance(int * time, unsigned int ** a, unsigned long * resista
     R = -t/(C*ln(1/3))
    */
 
-    *resistance =((double)(*time) * TIME_CORRECTION) / (-1000 * CAPACITANCE * (log(*a[1]) - log(*a[0])));
+    *resistance =((double)(*time) * TIME_CORRECTION) / (-1000 * CAPACITANCE * (log((*a)[1]) - log((*a)[0])));
 
 }
 void display_resistance(unsigned long * resistance){    //displays the resistance, so far only on serial
+   
     _delay_ms(10);
     char* out = "         ";
     sprintf(out, "%7lu\n", *resistance);
     sendserial(out);
+
 }
 
 ISR(ADC_vect)   //ADC interrupts

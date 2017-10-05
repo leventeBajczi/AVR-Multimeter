@@ -15,8 +15,8 @@
 #define CM 0b00000100
 #define EC 0b00000001
 
-#define CAPACITANCE 2.2E-7
-#define CHARGE_DELAY 2000
+#define CAPACITANCE 7.355E-8
+#define CHARGE_DELAY 450
 #define TIME_CORRECTION 1.0249437 //measured with simulator
 
 
