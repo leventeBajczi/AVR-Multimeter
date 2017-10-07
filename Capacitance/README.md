@@ -9,4 +9,4 @@ The Makefile assumes you are using an Atmega328P and would like to upload via an
 
 The circuit:
 
-<img src="./assets/resistance_measure_bb.svg">
+<img src="./assets/capacitance_measure_bb.svg">
