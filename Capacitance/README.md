@@ -1,11 +1,11 @@
-# Resistance-Measurement
-Measuring resistance (and conductivity) via a discharging capacitor with an AVR.
+# Capacitance-Measurement
+Measuring capacitance by dischargement over a known resistor
 
 Requirements:
 * avrdude
 * avr-gcc
 
-The Makefile assumes you are using an Atmega328P and would like to upload via an usbtiny AVR programmer through USB.
+The Makefile assumes you are using an Atmega328P and would like to upload via an usbasp AVR programmer through USB.
 
 The circuit:
 
