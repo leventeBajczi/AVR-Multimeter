@@ -1,21 +1,26 @@
-#include "resistance.h"
+#include "capacitance.h"
 
 int ADCvalue = 0;
 
+resistor r;
+
 int main(void)
 {
+    int i = 0;
     start_adc();
-    unsigned long * resistance = (unsigned long*) malloc(sizeof(unsigned long));;
+    long double * capacitance = (long double*) malloc(sizeof(long double));;
     unsigned int * time = (unsigned int*) malloc(sizeof(unsigned int));
     unsigned int * a = (unsigned int*) malloc(sizeof(unsigned int)*2);
-    for(;;)
+    resistor r_list[5] = {{EC_1, R_1}, {EC_2, R_2}, {EC_3, R_3}, {EC_4, R_4}, {EC_5, R_5}};
+    for(i; i>=0; i++)
     {
+        r = r_list[3];
         charge_capacitor();
         discharge_capacitor(time, &a);
-        determine_resistance(time, &a, resistance);
-        display_resistance(resistance);
+        determine_capacitance(time, &a, capacitance);
+        display_capacitance(capacitance);
     }
-    free(resistance);
+    free(capacitance);
     free(time);
     free(a);
     
@@ -45,7 +50,7 @@ void charge_capacitor(){        //charges up the capacitor
 
 void discharge_capacitor(int * time, unsigned int ** a){   //discharges the capacitor and measures the discharge rate
     DDRB = 0x00;
-    DDRD = EC + CM;
+    DDRD = r.address + CM;
     PORTB = 0x00;
     PORTD = 0x00;
     unsigned int i = 0;
@@ -60,22 +65,13 @@ void discharge_capacitor(int * time, unsigned int ** a){   //discharges the capa
     *time = i;
 
 }
-void determine_resistance(int * time, unsigned int ** a, unsigned long * resistance){ //calculates the resistance
-    /*
-    V = 3V * e^(-t/RC)
-    ln(1/3) = -t / RC
-    ln(1/3)*R = -t / C
-    R = -t/(C*ln(1/3))
-   */
-
-    *resistance =((double)(*time) * TIME_CORRECTION) / (-1000 * CAPACITANCE * (log((*a)[1]) - log((*a)[0])));
-
+void determine_capacitance(int * time, unsigned int ** a, long double * capacitance){ //calculates the capacitance
+    *capacitance =((double)(*time) * TIME_CORRECTION) / (-1000 * r.resistance * (log((*a)[1]) - log((*a)[0])));
 }
-void display_resistance(unsigned long * resistance){    //displays the resistance, so far only on serial
-   
+void display_capacitance(long double * capacitance){    //displays the resistance, so far only on serial
     _delay_ms(10);
-    char* out = "         ";
-    sprintf(out, "%7lu\n", *resistance);
+    char* out = "                     ";
+    sprintf(out, "%10lf\t%u\n", *capacitance, r.address);
     sendserial(out);
 
 }
