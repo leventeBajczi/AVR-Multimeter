@@ -25,7 +25,7 @@
 #define R_2     1E5 //about 30nF to 3uF
 #define R_3     1E4 //about 300nF to 30uF
 #define R_4     1E3 //about 3uF to 300uF
-#define R_5     1E2 //about 30uF to 3mF
+#define R_5     1E2 //about 30uF to 3mF, ONLY USE IF 50mA CAN FLOW THROUGH ANY OF YOUR IO PINS
 
 #define CHARGE_DELAY 500    //adjust if first measurement is off (or in the case of nonconsistent results)
 #define TIME_CORRECTION 1.0249437 //measured with simulator for the "while"-loop in discharge_capacitor()
